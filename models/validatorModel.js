@@ -14,8 +14,12 @@ const validatorSchema = new mongoose.Schema({
     validatorKey: {
         type: String,
         required: true,
-        unique: true, // Ensuring each validator has a unique API key / identity
+        unique: true,
         index: true
+    },
+    lastHeartbeat: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

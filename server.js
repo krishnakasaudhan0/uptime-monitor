@@ -47,6 +47,39 @@ const { isLoggedIn } = require('./middlewares/isLoggedIn');
 app.get('/', isLoggedIn, (req, res) => {
     res.render('dashboard', { user: req.user });
 });
+app.get('/api/dashboard', isLoggedIn, async (req, res) => {
+    try {
+        const Monitor = require('./models/monitor');
+        const Incident = require('./models/incident');
+        const Validator = require('./models/validatorModel');
+
+        const monitors = await Monitor.find({ userId: req.user.id || req.user._id });
+        const monitorIds = monitors.map(m => m._id);
+
+        const incidents = await Incident.find({ monitorId: { $in: monitorIds } })
+            .sort({ startedAt: -1 })
+            .limit(5)
+            .populate('monitorId');
+
+        const validators = await Validator.find({});
+
+        res.json({
+            stats: {
+                total: monitors.length,
+                up: monitors.filter(m => m.lastStatus === 'up').length,
+                down: monitors.filter(m => m.lastStatus === 'down').length,
+                unknown: monitors.filter(m => m.lastStatus === 'unknown').length,
+                pending: monitors.filter(m => m.lastStatus === 'pending').length
+            },
+            incidents,
+            validators,
+            monitors
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.use('/monitor',monitorRoutes);
 
 app.use('/users', userRoutes);
