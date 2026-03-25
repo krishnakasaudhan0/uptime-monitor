@@ -3,83 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Uptime</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sign Up - UptimeTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-dark: #09090B;
+            --bg-card: #18181B;
+            --border-col: #27272A;
+            --text-main: #FAFAFA;
+            --text-muted: #A1A1AA;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background-color: #0f172a; /* Slate-900 */
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: var(--radius-md);
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: #d4d4d8;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #09090b;
+            border: 1px solid var(--border-col);
+            color: white;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #52525b;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-google {
+            background-color: white;
+            color: #18181b;
+            font-weight: 500;
+        }
+
+        .btn-google:hover {
+            background-color: #f4f4f5;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-col);
+            margin: 0 10px;
+        }
+
+        .footer-text {
+            margin-top: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 antialiased text-slate-100 relative overflow-hidden">
-    <!-- Abstract Background shapes -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div class="absolute w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob top-0 left-10"></div>
-        <div class="absolute w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob top-0 right-10 animation-delay-2000"></div>
-        <div class="absolute w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob bottom-10 left-1/2 animation-delay-4000"></div>
-    </div>
+<body>
 
-    <div class="w-full max-w-md bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-8">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-2">Create an Account</h1>
-            <p class="text-slate-400 text-sm">Join us and start monitoring your apps.</p>
-        </div>
+    <div class="auth-container">
+        <div class="logo">UptimeTracker</div>
+        <p class="subtitle">Join us and start monitoring your apps.</p>
 
         <% if (error && error.length > 0) { %>
-            <div class="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm text-center">
+            <div class="alert alert-error">
                 <%= error %>
             </div>
         <% } %>
 
-        <form action="/users/register" method="POST" class="space-y-5">
-            <div>
-                <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
-                <input type="text" id="name" name="name" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all" placeholder="John Doe">
-            </div>
-            
-            <div>
-                <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
-                <input type="email" id="email" name="email" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all" placeholder="john@example.com">
+        <form action="/users/register" method="POST">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required>
             </div>
 
-            <div>
-                <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Password</label>
-                <input type="password" id="password" name="password" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all" placeholder="••••••••">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com" required>
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-2.5 rounded-lg shadow-lg hover:shadow-blue-500/25 transition-all transform hover:-translate-y-0.5">
-                Sign Up
-            </button>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
 
-        <div class="mt-6">
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-700"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-slate-800 text-slate-400">Or continue with</span>
-                </div>
-            </div>
+        <div class="divider">Or continue with</div>
 
-            <div class="mt-6">
-                <!-- Google Sign In Button -->
-                <a href="/users/auth/google" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 text-slate-900 font-medium py-2.5 rounded-lg shadow transition-colors">
-                    <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    Sign in with Google
-                </a>
-            </div>
+        <a href="/users/auth/google" class="btn btn-google">
+            <svg class="h-5 w-5" style="width: 20px; height: 20px;" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+        </a>
+
+        <div class="footer-text">
+            Already have an account? <a href="/users/login">Log in</a>
         </div>
-
-        <p class="mt-8 text-center text-sm text-slate-400">
-            Already have an account? 
-            <a href="/users/login" class="font-medium text-blue-400 hover:text-blue-300 transition-colors">Log in</a>
-        </p>
     </div>
+
 </body>
 </html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090B;
+            --bg-card: #18181B;
+            --border-col: #27272A;
+            --text-main: #FAFAFA;
+            --text-muted: #A1A1AA;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-col);
+            background: rgba(24, 24, 27, 0.5);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-col);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-card);
+        }
+
+        .btn-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Grid */
+        .monitors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* Card */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            border-color: #3f3f46;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .badge-method {
+            background: #27272a;
+            color: #d4d4d8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .card-url {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .card-url:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-up { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-down { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .status-up .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .status-down .status-dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .status-pending .status-dot { background: var(--warning); }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-col);
+            padding-top: 16px;
+        }
+
+        .meta-info {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 480px;
+            padding: 32px;
+            transform: scale(0.95);
+            transition: all 0.3s;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 600; }
+        .modal-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: #d4d4d8;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #09090b;
+            border: 1px solid var(--border-col);
+            color: white;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        /* Loading / Empty States */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--bg-card);
+            border: 1px dashed var(--border-col);
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 { color: white; margin-bottom: 8px; font-weight: 500;}
+        .empty-state p { margin-bottom: 20px; font-size: 0.95rem; }
+
+        /* Error Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            background: var(--danger);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">UptimeTracker</div>
+        <div class="user-profile">
+            <% if (typeof user !== 'undefined') { %>
+                <span><%= user.email || 'Welcome' %></span>
+            <% } %>
+            <a href="/users/logout" class="btn btn-outline" style="text-decoration:none; padding: 6px 12px;">Log Out</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="dashboard-header">
+            <div>
+                <h1 class="page-title">Monitors Overview</h1>
+                <p class="page-subtitle">Manage and track the uptime of your APis and Websites in real-time.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()">+ Add Monitor</button>
+        </div>
+
+        <div class="monitors-grid" id="monitorsContainer">
+            <!-- Rendered by JS -->
+            <div class="empty-state">
+                Loading monitors...
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Monitor Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Monitor</h2>
+                <p>Configure the endpoint to monitor and the check frequency.</p>
+            </div>
+            <form id="monitorForm">
+                <div class="form-group">
+                    <label>Monitor Name</label>
+                    <input type="text" id="m_name" class="form-control" placeholder="e.g. Production API" required>
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" id="m_url" class="form-control" placeholder="https://api.example.com/health" required>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Method</label>
+                        <select id="m_method" class="form-control">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Expected Status</label>
+                        <input type="number" id="m_status" class="form-control" value="200" required>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Check Interval (sec)</label>
+                        <input type="number" id="m_interval" class="form-control" value="60" min="30" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Timeout (ms)</label>
+                        <input type="number" id="m_timeout" class="form-control" value="5000" min="1000" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveMonitorBtn">Save Monitor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        const API_URL = '/monitor';
+        
+        // Modal logic
+        const modal = document.getElementById('addModal');
+        const monitorForm = document.getElementById('monitorForm');
+
+        function openModal() {
+            modal.classList.add('active');
+            monitorForm.reset();
+            // defaults
+            document.getElementById('m_method').value = 'GET';
+            document.getElementById('m_status').value = '200';
+            document.getElementById('m_interval').value = '60';
+            document.getElementById('m_timeout').value = '5000';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close on clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Fetch Monitors
+        async function fetchMonitors() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                renderMonitors(data);
+            } catch (err) {
+                console.error("Failed to fetch", err);
+                showToast("Failed to fetch monitors");
+            }
+        }
+
+        // Render Monitors
+        function renderMonitors(monitors) {
+            const container = document.getElementById('monitorsContainer');
+            
+            if (!monitors || monitors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Monitors Found</h3>
+                        <p>You haven't added any URLs to monitor yet.</p>
+                        <button class="btn btn-primary" onclick="openModal()">Create First Monitor</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            monitors.forEach(m => {
+                const statusClass = `status-${m.lastStatus || 'pending'}`;
+                const statusText = (m.lastStatus || 'pending').toUpperCase();
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                // Add an opacity layout if monitor is paused
+                if(m.isActive === false) {
+                    card.style.opacity = '0.6';
+                }
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h3 class="card-title">${escapeHTML(m.name)}</h3>
+                                <span class="badge-method">${m.method}</span>
+                            </div>
+                            <a href="${escapeHTML(m.url)}" target="_blank" class="card-url">${escapeHTML(m.url)}</a>
+                        </div>
+                        <div class="status-badge ${statusClass}">
+                            <div class="status-dot"></div>
+                            ${statusText}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="meta-info">
+                            <span>Every ${m.intervalSeconds}s</span>
+                            <span>•</span>
+                            <span>Status: ${m.isActive ? 'Active' : 'Paused'}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;" onclick="toggleMonitor('${m._id}', ${m.isActive})">${m.isActive ? 'Pause' : 'Resume'}</button>
+                            <button class="btn btn-danger" style="padding: 4px 10px; font-size: 0.75rem;" onclick="deleteMonitor('${m._id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Add Monitor
+        monitorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveMonitorBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('m_name').value,
+                url: document.getElementById('m_url').value,
+                method: document.getElementById('m_method').value,
+                expectedStatusCode: Number(document.getElementById('m_status').value),
+                intervalSeconds: Number(document.getElementById('m_interval').value),
+                timeoutMs: Number(document.getElementById('m_timeout').value),
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeModal();
+                    fetchMonitors();
+                } else {
+                    const errorData = await res.json();
+                    showToast(errorData.message || "Failed to add monitor!");
+                }
+            } catch (err) {
+                showToast("Network error occurred.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Delete Monitor
+        async function deleteMonitor(id) {
+            if (!confirm("Are you sure you want to delete this monitor?")) return;
+            try {
+                const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (res.ok) fetchMonitors();
+                else showToast("Failed to delete monitor");
+            } catch(e) { showToast("Network error"); }
+        }
+
+        // Toggle Monitor
+        async function toggleMonitor(id, currentStatus) {
+            try {
+                const res = await fetch(`${API_URL}/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive: !currentStatus })
+                });
+                if (res.ok) fetchMonitors();
+                else showToast("Failed to update status");
+            } catch(e) { showToast("Network error"); }
+        }
+
+        // Helper to prevent XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag])
+            );
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', fetchMonitors);
+
+    </script>
+</body>
+</html>
