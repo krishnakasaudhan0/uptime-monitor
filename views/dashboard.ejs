@@ -630,7 +630,7 @@
                     <div class="card-header">
                         <div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <h3 class="card-title">${escapeHTML(m.name)}</h3>
+                                <a href="/monitor/${m._id}/view" class="card-title" style="text-decoration: none;">${escapeHTML(m.name)} ↗</a>
                                 <span class="badge-method">${m.method}</span>
                             </div>
                             <a href="${escapeHTML(m.url)}" target="_blank" class="card-url">${escapeHTML(m.url)}</a>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Detail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090B;
+            --bg-card: #18181B;
+            --border-col: #27272A;
+            --text-main: #FAFAFA;
+            --text-muted: #A1A1AA;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; border-bottom: 1px solid var(--border-col);
+            background: rgba(24, 24, 27, 0.5); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .logo {
+            font-size: 1.25rem; font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        main { flex: 1; padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+        .dashboard-header { margin-bottom: 40px; }
+        .page-title { font-size: 2rem; font-weight: 600; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-muted); font-size: 0.95rem; }
+        a.page-subtitle:hover { color: white; }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h2 { font-size: 1.2rem; margin-bottom: 20px; font-weight: 500; border-bottom: 1px solid var(--border-col); padding-bottom: 12px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-col); }
+        th { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
+        
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+        }
+
+        .status-up { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-down { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">UptimeTracker</div>
+        <div>
+            <a href="/" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500;">&larr; Back to Dashboard</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="dashboard-header">
+            <h1 class="page-title" id="m_title">Loading...</h1>
+            <a href="#" id="m_url" class="page-subtitle" target="_blank" style="text-decoration: none;">Loading...</a>
+        </div>
+
+        <div class="card">
+            <h2>Incident History</h2>
+            <table>
+                <thead>
+                    <tr><th>Status Trigger</th><th>Started At</th><th>Ended At</th><th>Duration</th></tr>
+                </thead>
+                <tbody id="incidentsBody">
+                    <tr><td colspan="4" style="color: var(--text-muted);">Loading incidents...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Recent Check Consensus</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">The majority consensus gathered from distributed validators evaluating this endpoint.</p>
+            <table>
+                <thead>
+                    <tr><th>Scheduled At</th><th>Final Consensus</th><th>Validator Breakdown</th></tr>
+                </thead>
+                <tbody id="checksBody">
+                    <tr><td colspan="3" style="color: var(--text-muted);">Loading historical checks...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Injected explicitly via server.js res.render native payload!
+        const monitorId = '<%= monitorId %>';
+
+        async function fetchDetails() {
+            try {
+                const res = await fetch(`/monitor/${monitorId}/data`);
+                const data = await res.json();
+                
+                if (data.monitor) {
+                    document.getElementById('m_title').innerText = data.monitor.name;
+                    document.getElementById('m_url').innerText = data.monitor.url;
+                    document.getElementById('m_url').href = data.monitor.url;
+                }
+
+                renderIncidents(data.incidents || []);
+                renderChecks(data.recentChecks || []);
+            } catch(e) {
+                console.error("Failed to load details natively", e);
+            }
+        }
+
+        function renderIncidents(incidents) {
+            const tbody = document.getElementById('incidentsBody');
+            if (incidents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color: var(--text-muted);">No recorded incidents smoothly operating.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = incidents.map(i => {
+                const duration = i.resolved ? `${i.durationSeconds}s` : `<span style="color: var(--danger)">Ongoing Active Incident</span>`;
+                return `
+                    <tr>
+                        <td><span class="status-down">DOWN</span></td>
+                        <td>${new Date(i.startedAt).toLocaleString()}</td>
+                        <td>${i.resolved ? new Date(i.endedAt).toLocaleString() : '---'}</td>
+                        <td>${duration}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderChecks(checks) {
+            const tbody = document.getElementById('checksBody');
+            if (checks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="color: var(--text-muted);">Awaiting validators to pickup jobs...</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = checks.map(c => {
+                const statusClass = c.finalStatus === 'up' ? 'status-up' : (c.finalStatus === 'down' ? 'status-down' : 'status-pending');
+                
+                // Read nested results
+                const details = c.results.map(r => {
+                    const color = r.success ? 'var(--success)' : 'var(--danger)';
+                    return `<span style="color: ${color}; margin-right: 8px;">[${r.region} HTTP ${r.statusCode} : ${r.responseTimeMs}ms]</span>`;
+                }).join('<br/>') || '<span style="color: var(--text-muted)">No validators returned payloads during this window.</span>';
+
+                return `
+                    <tr>
+                        <td>${new Date(c.scheduledAt).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${c.finalStatus.toUpperCase()}</span></td>
+                        <td style="font-family: monospace; font-size: 0.8rem;">${details}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchDetails);
+        setInterval(fetchDetails, 5000); // Live poll native sync
+    </script>
+</body>
+</html>

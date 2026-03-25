@@ -47,6 +47,11 @@ const { isLoggedIn } = require('./middlewares/isLoggedIn');
 app.get('/', isLoggedIn, (req, res) => {
     res.render('dashboard', { user: req.user });
 });
+
+app.get('/monitor/:id/view', isLoggedIn, (req, res) => {
+    // Specifically serving an isolated view decoupling the REST API from the SSR flow!
+    res.render('detail', { user: req.user, monitorId: req.params.id });
+});
 app.get('/api/dashboard', isLoggedIn, async (req, res) => {
     try {
         const Monitor = require('./models/monitor');
